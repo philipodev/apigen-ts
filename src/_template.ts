@@ -46,12 +46,18 @@ export class ApiClient {
   PrepareFetchUrl(path: string): URL {
     let base = this.Config.baseUrl
     if ("location" in globalThis && (base === "" || base.startsWith("/"))) {
-      // make ts happy in pure nodejs environment, should never pass here
       const { location } = globalThis as unknown as { location: { origin: string } }
-      base = `${location.origin}${base.endsWith("/") ? base : `/${base}`}`
+      base = `${location.origin}${base.startsWith("/") ? base : `/${base}`}`
     }
 
-    return new URL(path, base)
+    const fullPath =
+      base.endsWith("/") && path.startsWith("/")
+        ? `${base}${path.slice(1)}`
+        : base.endsWith("/") || path.startsWith("/")
+          ? `${base}${path}`
+          : `${base}/${path}`
+
+    return new URL(fullPath)
   }
 
   async Fetch<T>(method: string, path: string, opts: ApigenRequest = {}): Promise<T> {
