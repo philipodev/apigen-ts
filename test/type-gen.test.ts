@@ -25,10 +25,10 @@ test("type inline", async () => {
   t({ type: "integer" }, "number")
   t({ type: "boolean" }, "boolean")
   t({ type: "null" }, "null")
-  t({ type: "file" }, "unknown")
+  t({ type: "file" }, "File")
   t({ type: "date" }, "unknown")
   t({ type: "object" }, "object") // should be unknown?
-  t({ type: "array" }, "void[]") // should be unknown?
+  t({ type: "array" }, "unknown[]")
 
   // nullable
   t({ type: "string", nullable: true }, "string | null")
@@ -49,7 +49,7 @@ test("type inline", async () => {
   t({ type: "array", items: { type: "boolean" } }, "boolean[]")
   t({ type: "array", items: { type: "null" } }, "null[]")
   t({ type: "array", items: { type: "object" } }, "object[]") // should be unknown?
-  t({ type: "array", items: { type: "file" } }, "unknown[]")
+  t({ type: "array", items: { type: "file" } }, "File[]")
   t({ type: "array", items: { type: ["string", "number"] } }, "(string | number)[]")
 
   // arrays of arrays

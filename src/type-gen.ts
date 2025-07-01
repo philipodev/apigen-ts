@@ -94,9 +94,10 @@ export const makeType = (ctx: Context, s?: Referenced<OAS3>): ts.TypeNode => {
   if ("type" in s && s.type === "integer") s.type = "number"
 
   if ("enum" in s && s.enum && !Array.isArray(s.type)) {
-    const isArray = s.type === "array"
-    const t = makeInlineEnum(isArray ? { ...s, type: s.items?.type } : s)
-    if (t) return isArray ? f.createArrayTypeNode(t) : t
+    const isArrayType = s.type === "array"
+    const enumType = isArrayType && s.items ? s.items.type : s.type
+    const t = makeInlineEnum(isArrayType ? { ...s, type: enumType } : s)
+    if (t) return isArrayType ? f.createArrayTypeNode(t) : t
   }
 
   if ("properties" in s && s.properties) {
@@ -127,8 +128,9 @@ export const makeType = (ctx: Context, s?: Referenced<OAS3>): ts.TypeNode => {
     else if (s.type === "boolean") t = f.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword)
     else if (s.type === "number") t = f.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)
     else if (s.type === "string") t = f.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
-    else if (s.type === "array") t = f.createArrayTypeNode(mk(s.items))
+    else if (s.type === "array") t = f.createArrayTypeNode(s.items ? mk(s.items) : f.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword))
     else if (s.type === "null") t = f.createLiteralTypeNode(f.createNull())
+    else if (s.type === "file") t = f.createTypeReferenceNode("File")
     else if (isArray(s.type)) t = f.createUnionTypeNode(s.type.map((x) => mk({ type: x })))
     else {
       console.warn(`makeType: unknown type "${s.type}"`)
